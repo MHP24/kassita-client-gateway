@@ -1,16 +1,19 @@
 import { Controller, Post, Body, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_SERVICE } from '../../config';
-import { firstValueFrom } from 'rxjs';
+import { CreateTicketDto } from './dto';
+import { sendToMicroservice } from '../../common';
 
 @Controller('tickets')
 export class TicketsController {
   constructor(@Inject(RABBITMQ_SERVICE) private readonly client: ClientProxy) {}
 
   @Post()
-  async create(@Body() createTicketDto: any) {
-    return await firstValueFrom(
-      this.client.send('create-ticket', { createTicketDto }),
+  create(@Body() createTicketDto: CreateTicketDto) {
+    return sendToMicroservice<CreateTicketDto>(
+      this.client,
+      'create-ticket',
+      createTicketDto,
     );
   }
 }
