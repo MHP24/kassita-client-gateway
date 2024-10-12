@@ -13,12 +13,12 @@ export class CreateTicketDto {
   images?: string[] = ['image1.jpg'];
 
   @IsEnum(TicketPriority, {
-    message: `Valid options are: LOW | MEDIUM | HIGH`,
+    message: `Valid priorities are: LOW | MEDIUM | HIGH`,
   })
   priority?: TicketPriority = TicketPriority.LOW;
 
   @IsEnum(TicketStatus, {
-    message: `Valid options are: PENDING | IN_PROGRESS | REJECTED | SOLVED`,
+    message: `Valid statuses are: PENDING | IN_PROGRESS | REJECTED | SOLVED`,
   })
   status?: TicketStatus = TicketStatus.PENDING;
 
