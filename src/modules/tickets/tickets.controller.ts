@@ -14,6 +14,7 @@ import { RABBITMQ_SERVICE } from '../../config';
 import {
   CreateTicketDto,
   TicketsPaginationDto,
+  UpdateTicketPriorityDto,
   UpdateTicketStatusDto,
 } from './dto';
 import { sendToMicroservice } from '../../common';
@@ -53,6 +54,15 @@ export class TicketsController {
       this.client,
       'ticket.update-status',
       updateTicketStatusDto,
+    );
+  }
+
+  @Patch('update-priority/:ticketId/:priority')
+  updateTicketPriority(@Param() updateTicketPriority: UpdateTicketPriorityDto) {
+    return sendToMicroservice<UpdateTicketPriorityDto>(
+      this.client,
+      'ticket.update-priority',
+      updateTicketPriority,
     );
   }
 }
