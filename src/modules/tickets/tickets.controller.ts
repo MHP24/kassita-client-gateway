@@ -52,6 +52,11 @@ export class TicketsController {
     );
   }
 
+  @Get('/types')
+  findTypes() {
+    return sendToMicroservice(this.client, 'ticket.find-types', {});
+  }
+
   @Get('id/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return sendToMicroservice<{ id: string }>(this.client, 'ticket.find-one', {
