@@ -8,6 +8,8 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_SERVICE } from '../../config';
@@ -17,19 +19,28 @@ import {
   UpdateTicketPriorityDto,
   UpdateTicketStatusDto,
 } from './dto';
-import { sendToMicroservice } from '../../common';
+import { sendToMicroservice, UploadedFilesDto } from '../../common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('tickets')
 export class TicketsController {
   constructor(@Inject(RABBITMQ_SERVICE) private readonly client: ClientProxy) {}
 
   @Post()
-  create(@Body() createTicketDto: CreateTicketDto) {
-    return sendToMicroservice<CreateTicketDto>(
-      this.client,
-      'ticket.create',
-      createTicketDto,
-    );
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 3 }]))
+  create(
+    @Body() createTicketDto: CreateTicketDto,
+    @UploadedFiles() uploadedFilesDto: UploadedFilesDto,
+  ) {
+    const { files } = uploadedFilesDto;
+    return sendToMicroservice(this.client, 'ticket.create', {
+      ...createTicketDto,
+      images: files.map(({ originalname, mimetype, buffer }) => ({
+        originalname,
+        mimetype,
+        base64: buffer.toString('base64'),
+      })),
+    });
   }
 
   @Get()

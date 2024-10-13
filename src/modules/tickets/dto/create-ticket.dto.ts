@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsString, IsUUID } from 'class-validator';
 import { TicketPriority, TicketStatus } from '../enum';
 
 export class CreateTicketDto {
@@ -7,10 +7,6 @@ export class CreateTicketDto {
 
   @IsString()
   description: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  images?: string[] = ['image1.jpg'];
 
   @IsEnum(TicketPriority, {
     message: `Valid priorities are: LOW | MEDIUM | HIGH`,
