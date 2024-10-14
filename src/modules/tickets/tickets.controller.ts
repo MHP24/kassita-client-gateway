@@ -12,34 +12,50 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { RABBITMQ_SERVICE } from '../../config';
+import { RABBITMQ_TICKETS_MICROSERVICE } from '../../config';
 import {
   CreateTicketDto,
   TicketsPaginationDto,
   UpdateTicketPriorityDto,
   UpdateTicketStatusDto,
 } from './dto';
-import { sendToMicroservice, UploadedFilesDto } from '../../common';
+import {
+  sendToMicroservice,
+  UploadedFilesDto,
+  User,
+  ValidRoles,
+} from '../../common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { Auth, GetUser } from '../auth/decorators';
 
 @Controller('tickets')
 export class TicketsController {
-  constructor(@Inject(RABBITMQ_SERVICE) private readonly client: ClientProxy) {}
+  constructor(
+    @Inject(RABBITMQ_TICKETS_MICROSERVICE) private readonly client: ClientProxy,
+  ) {}
 
+  @Auth(ValidRoles.user)
   @Post()
   @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 3 }]))
   create(
     @Body() createTicketDto: CreateTicketDto,
     @UploadedFiles() uploadedFilesDto: UploadedFilesDto,
+    @GetUser() user: User,
   ) {
-    const { files } = uploadedFilesDto;
     return sendToMicroservice(this.client, 'ticket.create', {
       ...createTicketDto,
-      images: files.map(({ originalname, mimetype, buffer }) => ({
-        originalname,
-        mimetype,
-        base64: buffer.toString('base64'),
-      })),
+      images:
+        uploadedFilesDto?.files?.map(({ originalname, mimetype, buffer }) => ({
+          originalname,
+          mimetype,
+          base64: buffer.toString('base64'),
+        })) ?? [],
+      user: {
+        id: user.id,
+        username: user.username,
+        apartment: user.apartment,
+        email: user.email,
+      },
     });
   }
 

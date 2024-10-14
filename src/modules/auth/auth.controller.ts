@@ -2,14 +2,16 @@ import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { SignInUserDto, SignUpUserDto } from './dto';
 import { sendToMicroservice } from '../../common';
-import { RABBITMQ_SERVICE } from '../../config';
+import { RABBITMQ_AUTH_MICROSERVICE } from '../../config';
 // * Auth control
 import { Token } from './decorators';
 import { JwtRefreshGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject(RABBITMQ_SERVICE) private readonly client: ClientProxy) {}
+  constructor(
+    @Inject(RABBITMQ_AUTH_MICROSERVICE) private readonly client: ClientProxy,
+  ) {}
 
   @Post('sign-up')
   async signUp(@Body() signUpUserDto: SignUpUserDto) {
