@@ -3,3 +3,4 @@ export { TicketsPaginationDto } from './tickets-pagination.dto';
 export { UpdateTicketStatusDto } from './update-ticket-status.dto';
 export { UpdateTicketPriorityDto } from './update-ticket-priority.dto';
 export { TicketImageDto } from './ticket-image.dto';
+export { AssignTicketDto } from './assign-ticket.dto';

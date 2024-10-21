@@ -14,6 +14,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_TICKETS_MICROSERVICE } from '../../config';
 import {
+  AssignTicketDto,
   CreateTicketDto,
   TicketsPaginationDto,
   UpdateTicketPriorityDto,
@@ -59,6 +60,12 @@ export class TicketsController {
     });
   }
 
+  @Auth(
+    ValidRoles.employee,
+    ValidRoles.supervisor,
+    ValidRoles.admin,
+    ValidRoles.super_user,
+  )
   @Get()
   findMany(@Query() ticketPaginationDto: TicketsPaginationDto) {
     return sendToMicroservice<TicketsPaginationDto>(
@@ -68,6 +75,7 @@ export class TicketsController {
     );
   }
 
+  @Auth()
   @Get('/types')
   findTypes() {
     return sendToMicroservice(this.client, 'ticket.find-types', {});
@@ -80,6 +88,12 @@ export class TicketsController {
     });
   }
 
+  @Auth(
+    ValidRoles.employee,
+    ValidRoles.supervisor,
+    ValidRoles.admin,
+    ValidRoles.super_user,
+  )
   @Patch('update-status/:ticketId/:status')
   updateTicketStatus(@Param() updateTicketStatusDto: UpdateTicketStatusDto) {
     return sendToMicroservice<UpdateTicketStatusDto>(
@@ -89,6 +103,12 @@ export class TicketsController {
     );
   }
 
+  @Auth(
+    ValidRoles.employee,
+    ValidRoles.supervisor,
+    ValidRoles.admin,
+    ValidRoles.super_user,
+  )
   @Patch('update-priority/:ticketId/:priority')
   updateTicketPriority(@Param() updateTicketPriority: UpdateTicketPriorityDto) {
     return sendToMicroservice<UpdateTicketPriorityDto>(
@@ -96,5 +116,11 @@ export class TicketsController {
       'ticket.update-priority',
       updateTicketPriority,
     );
+  }
+
+  @Auth(ValidRoles.supervisor, ValidRoles.admin, ValidRoles.super_user)
+  @Patch('assign/:ticketId/:userId')
+  assignTicket(@Param() assignTicketDto: AssignTicketDto) {
+    return { assignTicketDto };
   }
 }
