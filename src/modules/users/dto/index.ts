@@ -1,1 +1,2 @@
-export { FindEmployeesDto } from './find-employees.dto';
+export { FindEmployeeDto } from './find-employee.dto';
+export { UpdateRolesDto } from './update-roles.dto';

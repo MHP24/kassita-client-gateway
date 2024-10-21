@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UsersController } from './users.controller';
 import { envs, RABBITMQ_USERS_MICROSERVICE } from '../../config';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { envs, RABBITMQ_USERS_MICROSERVICE } from '../../config';
         },
       },
     ]),
+    AuthModule,
   ],
   controllers: [UsersController],
 })
