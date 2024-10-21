@@ -10,14 +10,17 @@ import {
   Patch,
   UseInterceptors,
   UploadedFiles,
+  Res,
+  HttpStatus,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { RABBITMQ_TICKETS_MICROSERVICE } from '../../config';
 import {
   AssignTicketDto,
   CloseTicketDto,
   CreateTicketDto,
   FindEmployeeTicketsDto,
+  GetTicketImageDto,
   TicketsPaginationDto,
   UpdateTicketPriorityDto,
   UpdateTicketStatusDto,
@@ -30,6 +33,8 @@ import {
 } from '../../common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { Auth, GetUser } from '../auth/decorators';
+import { Response } from 'express';
+import { firstValueFrom } from 'rxjs';
 
 @Controller('tickets')
 export class TicketsController {
@@ -83,6 +88,7 @@ export class TicketsController {
     return sendToMicroservice(this.client, 'ticket.find-types', {});
   }
 
+  @Auth()
   @Get('id/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return sendToMicroservice<{ id: string }>(this.client, 'ticket.find-one', {
@@ -158,5 +164,27 @@ export class TicketsController {
   @Patch('close')
   closeTicket(@Body() closeTicketDto: CloseTicketDto) {
     return sendToMicroservice(this.client, 'ticket.close', closeTicketDto);
+  }
+
+  @Auth()
+  @Get('img/:name')
+  async getTicketImage(
+    @Param() getTicketImageDto: GetTicketImageDto,
+    @Res() res: Response,
+  ) {
+    try {
+      const buffer = Buffer.from(
+        await firstValueFrom(
+          this.client.send('ticket.image', getTicketImageDto),
+        ),
+      );
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.send(buffer);
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: 'Not found',
+      });
+    }
   }
 }
