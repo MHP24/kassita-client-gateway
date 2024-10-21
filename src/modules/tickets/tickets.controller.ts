@@ -15,7 +15,9 @@ import { ClientProxy } from '@nestjs/microservices';
 import { RABBITMQ_TICKETS_MICROSERVICE } from '../../config';
 import {
   AssignTicketDto,
+  CloseTicketDto,
   CreateTicketDto,
+  FindEmployeeTicketsDto,
   TicketsPaginationDto,
   UpdateTicketPriorityDto,
   UpdateTicketStatusDto,
@@ -119,8 +121,42 @@ export class TicketsController {
   }
 
   @Auth(ValidRoles.supervisor, ValidRoles.admin, ValidRoles.super_user)
-  @Patch('assign/:ticketId/:userId')
+  @Patch('assign/id/:ticketId/employee/:userId')
   assignTicket(@Param() assignTicketDto: AssignTicketDto) {
-    return { assignTicketDto };
+    return sendToMicroservice(this.client, 'ticket.assign', assignTicketDto);
+  }
+
+  @Auth(
+    ValidRoles.employee,
+    ValidRoles.supervisor,
+    ValidRoles.admin,
+    ValidRoles.super_user,
+  )
+  @Get('employee-tickets/:userId')
+  findEmployeeTickets(@Param() findEmployeeTicketsDto: FindEmployeeTicketsDto) {
+    return sendToMicroservice(
+      this.client,
+      'ticket.find-for-employee',
+      findEmployeeTicketsDto,
+    );
+  }
+
+  @Auth(ValidRoles.user)
+  @Get('my-cases')
+  findMyCases(@GetUser() user: User) {
+    return sendToMicroservice(this.client, 'ticket.find-cases', {
+      userId: user.id,
+    });
+  }
+
+  @Auth(
+    ValidRoles.employee,
+    ValidRoles.supervisor,
+    ValidRoles.admin,
+    ValidRoles.super_user,
+  )
+  @Patch('close')
+  closeTicket(@Body() closeTicketDto: CloseTicketDto) {
+    return sendToMicroservice(this.client, 'ticket.close', closeTicketDto);
   }
 }
