@@ -8,6 +8,7 @@ interface EnvVars {
   TICKETS_MS_RABBITMQ_QUEUE: string;
   AUTH_MS_RABBITMQ_QUEUE: string;
   USERS_MS_RABBITMQ_QUEUE: string;
+  REPORTS_MS_RABBITMQ_QUEUE: string;
 }
 
 const envSchema = joi
@@ -17,6 +18,7 @@ const envSchema = joi
     TICKETS_MS_RABBITMQ_QUEUE: joi.string().required(),
     AUTH_MS_RABBITMQ_QUEUE: joi.string().required(),
     USERS_MS_RABBITMQ_QUEUE: joi.string().required(),
+    REPORTS_MS_RABBITMQ_QUEUE: joi.string().required(),
   })
   .unknown(true);
 
@@ -33,4 +35,5 @@ export const envs = {
   ticketsMsRabbitMqQueue: envVars.TICKETS_MS_RABBITMQ_QUEUE,
   authMsRabbitMqQueue: envVars.AUTH_MS_RABBITMQ_QUEUE,
   usersMsRabbitMqQueue: envVars.USERS_MS_RABBITMQ_QUEUE,
+  reportsMsRabbitMqQueue: envVars.REPORTS_MS_RABBITMQ_QUEUE,
 };
